@@ -1,5 +1,6 @@
 BEGIN {
 	FS="[ ;]"
+	thing=""
 }
 
 $1=="thing" {
@@ -16,10 +17,10 @@ $1=="type" {
 }
 
 $1=="}" {
-	if (thing)
+	if (thing != "")
 	{
 		if (type == 2010 && scale)
 			print FILENAME, thing, scale
-		thing=0
+		thing=""
 	}
 }
