@@ -17,7 +17,7 @@ group = parser.add_argument_group('Search options')
 group.add_argument('-a', action='store_true', help='show servers with addons')
 group.add_argument('-e', action='store_true', help='show empty servers')
 group.add_argument('-f', action='store_const', const='full', default='joinable', help='show full servers')
-group.add_argument('-c', type=int, metavar='id', help='copy server address to clipboard')
+group.add_argument('-c', type=int, metavar='id', help='copy server address to clipboard, implies -s')
 args = parser.parse_args()
 
 bots = []
@@ -34,7 +34,7 @@ def load():
 	with open('list.json') as f:
 		d = json.load(f)
 
-if not args.r and not args.s:
+if not args.r and not args.s and not args.c:
 	try:
 		load()
 		if time() - d['time'] > 60:
@@ -136,25 +136,28 @@ servers = sorted(
 	key=lambda s: len(s['files']),
 	reverse=True)
 
-for i, s in enumerate(servers, 1):
+def out(i, s):
 	w = max(max(len(p['name']) for p in s['players']) + 2, 8) if s['players'] else 0
 	players = itertools.batched(
 		[colored(p['name'].ljust(w), 'blue' if p['team'] == 'player' else 'dark_grey')
 		for p in sorted(s['players'], key=lambda p: p['team']) if not is_bot(p)], 4
 	)
 	print(f'''
-Server: ({i}) {svip(s['address'])}\t{svname(s['server_name'])}
+Server: (id:{i}) {svip(s['address'])}\t{svname(s['server_name'])}
 Players: {pcount(s['num_playing'])} / {pcount(s['max_connections'])} {spectators(s['players'])} {bcount(s['players'])}
 {'\n'.join(map('\t'.join, players))}
 AVG PWR: {pwr(s['avg_pwr'])}
 {fcount(s['files'])}
 	'''.rstrip() + '\n')
 
-print(f'Showing {len(servers)} / {len(d['servers'])} servers')
-
 if args.c is not None:
 	if args.c <= len(servers):
 		s = servers[args.c - 1]
+		out(args.c, s)
 		ip = ':'.join(map(str, s['address']))
 		pyperclip.copy(ip)
-		print(f'{ip} ({re.sub(r'^[0-9][A-F]', '', s['server_name'])}) copied to clipboard!')
+		print(f'{ip} ({re.sub(r'\^[0-9A-F]', '', s['server_name'])}) copied to clipboard!')
+else:
+	for i, s in enumerate(servers, 1):
+		out(i, s)
+	print(f'Showing {len(servers)} / {len(d['servers'])} servers')
