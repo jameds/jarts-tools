@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 from termcolor import colored
-from time import time
 from urllib.request import urlopen
 import argparse
 import itertools
 import json
 import pyperclip
 import re
+import time
 
 parser = argparse.ArgumentParser()
 group = parser.add_argument_group('Download options')
@@ -37,7 +37,7 @@ def load():
 if not args.r and not args.s and not args.c:
 	try:
 		load()
-		if time() - d['time'] > 60:
+		if time.time() - d['time'] > 60:
 			args.r = True
 	except Exception:
 		pass
@@ -161,3 +161,5 @@ else:
 	for i, s in enumerate(servers, 1):
 		out(i, s)
 	print(f'Showing {len(servers)} / {len(d['servers'])} servers')
+
+print('Last updated ' + time.strftime('%X', time.localtime(d['time'])))
