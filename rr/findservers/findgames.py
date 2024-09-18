@@ -70,8 +70,8 @@ def fcount(files):
 	return f'{len(files)} files' if len(files) else ''
 
 def pwr(n):
-	if isinstance(n, str):
-		return n
+	if n == 'disabled':
+		return 'NO'
 	if n < 1300:
 		color = 'dark_grey'
 	elif n > 2000:
@@ -79,6 +79,14 @@ def pwr(n):
 	else:
 		color = 'green'
 	return colored(n, color)
+
+def gt(s):
+	n = s['gametype']
+	if n == 'Race':
+		return colored(s['speed'], 'green')
+	elif n == 'Battle':
+		return colored(n, 'red')
+	return n
 
 def svip(addr):
 	text = ':'.join(map(str, s['address']))
@@ -146,7 +154,7 @@ def out(i, s):
 Server: (id:{i}) {svip(s['address'])}\t{svname(s['server_name'])}
 Players: {pcount(s['num_playing'])} / {pcount(s['max_connections'])} {spectators(s['players'])} {bcount(s['players'])}
 {'\n'.join(map('\t'.join, players))}
-AVG PWR: {pwr(s['avg_pwr'])}
+{pwr(s['avg_pwr'])} PWR - {gt(s)}
 {fcount(s['files'])}
 	'''.rstrip() + '\n')
 
