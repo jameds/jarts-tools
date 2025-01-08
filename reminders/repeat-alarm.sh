@@ -4,5 +4,5 @@ set -e
 cd "$(dirname "$0")"
 awk \
 	-v "today=$(date +%Y-%m-%d)" \
-	-f _common.awk \
+	-f _reminders-common.awk \
 	-f _repeat-alarm.awk "$1" >> "$2"

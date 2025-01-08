@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e
+type notify-send at sponge >/dev/null
 [ $# -lt 2 ] && {
 	>&2 cat <<-EOT
 	alarm 40 Wash, check towels
@@ -19,9 +21,11 @@ summary="${text%%,*}"
 body="${text#*,}"
 body="${body%,}"
 cmd="notify-send -u critical '$summary' '$body'"
-future="$(echo "$cmd" | at -v "$ts" 2>&1 | sponge | head -n 1)"
+future="$(echo "$cmd" | \
+	at -v "$ts" 2>&1 | sponge | head -n 1)"
 if [ "$ts" != 'now' ]; then
-	cat >> ~/todo <<-EOF
+	mkdir -p ~/data
+	cat >> ~/data/todo.txt <<-EOF
 
 	[$future]
 	$*
